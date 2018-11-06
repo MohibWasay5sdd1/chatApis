@@ -281,7 +281,7 @@ class UsersController extends ActiveController
 
                 $value= Yii::$app->mailer->compose(['html'=>'verificationMail'], ['token' => $model['reset_token'], 'email' => $model['user_email'],'name' => $model['full_name']])
                         ->setTo($user_email)
-                        ->setFrom(['info@clients2.5stardesigners.net' =>'Support'])
+                        ->setFrom(['5sstardesigners@gmail.com' =>'Support'])
                         ->setSubject('Registration Verification for ' . \Yii::$app->name)
                         ->send();
                       
@@ -430,7 +430,7 @@ class UsersController extends ActiveController
                                     'userLastName'=>$userdata['last_name'],
                                     'userEmail'=>$userdata['user_email'],
                                     'lastLogin'=>$userdata['last_login'],
-                                    'pofilePicture'=>$profile_pic,
+                                    'profilePicture'=>$profile_pic,
                                     'token' => $model_token->token,
                                     'expiry' => $model_token->expiry,
                         );

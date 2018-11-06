@@ -227,6 +227,7 @@ class users extends ActiveRecord
         $i = 0;
         $k = 0;
         $l = 0;
+        $m = 0;
         //get contact list id
         $connection = Yii::$app->db;
         $sql  = "SELECT * FROM contact_lists WHERE user_id= :id";
@@ -240,6 +241,13 @@ class users extends ActiveRecord
         $command = $connection->createCommand($sql);
         $command->bindValue(':id' , $list_id);
         $rows_list = $command->queryAll();
+        if($rows_list) {
+            foreach ($rows_list as $row) {
+                $listcontactids[$m] = $row['contact_id'];
+                $m++;
+            }
+        }
+        $m = 0;
         
         //get all contacts matching search condition
         $rows = (new Query())
@@ -255,6 +263,13 @@ class users extends ActiveRecord
         $command = $connection->createCommand($sql);
         $command->bindValue(':id' , $id);
         $rows_invites = $command->queryAll();
+        if($rows_invites) {
+            foreach ($rows_invites as $row) {
+                $invitedemails[$m] = $row['email'];
+                $m++;
+            }
+        }
+        $m = 0;
         
         //to create response on the basis of above results
         foreach ($rows as $row) {
@@ -266,39 +281,20 @@ class users extends ActiveRecord
                 $arraytemp['user_name'] = $row['user_name'];
                 $arraytemp['full_name'] = $row['full_name'];
                 $arraytemp['user_email'] = $row['user_email'];
-                
-                for( $j = 0; $j < count($rows_list); $j++ ) {
-
-                    if($arraytemp['id'] == $rows_list[$j]['contact_id']){
-                        $contacts[$i] =$arraytemp;
-                        $i++;
-                     } else {
-                         //if($arraytemp['id'] == $rows_list[$j]['contact_id'])
-                         //continue;
-                         //$others[$k] = $arraytemp;
-                         //$k++;
-                        if($rows_invites){
-                            for( $m = 0; $m < count($rows_invites); $m++ ) {                        
-                                if($arraytemp['user_email'] == $rows_invites[$m]['email']){
-                                    $others['invited'][$l] = $arraytemp;
-                                    $l++;
-                                } else{
-                                    //for( $j = 0; $j < count($rows_list); $j++ ) {
-                                        if($arraytemp['id'] == $rows_list[$j]['contact_id'])
-                                        continue;
-                                        $others['uninvited'][$k] = $arraytemp;
-                                        $k++;
-                                    //}
-                                }
-
-                            }
-                        } else {
-                            $others['uninvited'][$k] = $arraytemp;
-                            $k++; 
-                        }
-                     }
-
+                $arrayid[$i] = $row['id'];
+                $arrayemail[$i] = $row['user_email'];
+                if(!empty($listcontactids) && in_array($row['id'], $listcontactids)) {
+                    $contacts[$i] =$arraytemp;
+                } elseif (!empty($invitedemails) && in_array($row['user_email'], $invitedemails) ) {
+                    $others['invited'][$k] =$arraytemp;
+                    $k++;
+                } else {
+                    $others['uninvited'][$l] =$arraytemp;
+                    $l++;
                 }
+
+                $temparray[$i] = $arraytemp;
+                $i++;
                 $response['contacts'] = $contacts;
                 $response['others'] = $others;       
             }    
