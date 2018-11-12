@@ -59,13 +59,13 @@ return [
                       'extraPatterns'=> [
                   
                             'PUT,POST,OPTIONS <id:\d+>' => 'update',
-                            'PUT,POST,OPTIONS <id:\d+>/updatesettings' => 'update-settings',
                             'POST,OPTIONS' =>'create',
                             'POST,OPTIONS registration-token' =>'request-registration-token',
                             'GET,OPTIONS {id}/contacts' =>'view',
                             'POST,OPTIONS login' => 'login',
                             'POST,OPTIONS socialmedialogin' => 'social-media-login',
                             'POST,OPTIONS {id}/invitation' => 'invitation',
+                            //'GET,OPTIONS {id}/invitation' => 'show-invitations',
                             'GET,OPTIONS {id}/search' => 'search-user',
                             'POST,OPTIONS reset-password-request' => 'request-password-reset',
                             'POST,OPTIONS reset-password' => 'reset-password',
@@ -81,30 +81,21 @@ return [
                 ],
                 [
                     'class' => 'yii\rest\UrlRule',
-                    'controller' => 'v1/entries',
-                     'extraPatterns'=> [
-                             //'PUT,POST,OPTIONS user/{userid}/category/{id}' => 'update',
-                             'GET,OPTIONS user/{id}/entry' => 'index',
-                             'POST,OPTIONS user/{id}/entry' =>'create',
-                             'POST,OPTIONS user/{id}/entrydate' =>'create-date',
-                             'GET,OPTIONS user/{id}/randomentry' =>'random-entry',
-                             'GET,OPTIONS user/{id}/randomentryofuser' =>'random-entry-of-user',
-                             'GET,OPTIONS user/{id}/achievement' => 'achievement-view',
-                             'GET,OPTIONS user/{id}/shareachievement' => 'share-achievement',
-                             'GET,OPTIONS user/{id}/feedbackachievement' => 'feedback-achievement',
-                             //'DELETE,OPTIONS user/{userid}/category/{id}' => 'delete',
-                             'POST,OPTIONS app/test-post/{id}' => 'test-post'
+                    'controller' => 'v1/user-invitations',
+                      'extraPatterns'=> [
+                  
+                            'PUT,POST,OPTIONS <id:\d+>' => 'update',
+                            'POST,OPTIONS {id}/invitation' =>'create',
+                            'GET,OPTIONS {id}/contacts' =>'view',
+                            //'POST,OPTIONS {id}/invitation' => 'invitation',
+                            'GET,OPTIONS {id}/invitation' => 'index',
                     ],
-                    
                     'tokens' => [
                             
-                             '{userid}' => '<userid:\\d+>' ,
-                             '{id}' => '<id:\\d+>' ,
-                             '{sid}' => '<sid:\\d+>'
+                            '{id}' => '<id:\\d+>' 
                     ]
                     
                 ],
-            
 
                 [
                     'class' => 'yii\rest\UrlRule',

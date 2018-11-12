@@ -107,13 +107,28 @@ class users extends ActiveRecord
         return $this->hasOne(Roles::className(), ['id' => 'role_id']);
     }
 
-
-     public function getUserByEmail($user_email)
+    public function getUserById($user_id,$status)
     {
         $connection = Yii::$app->db;
-        $sql  = "SELECT * FROM users WHERE user_email = :email";
+        $sql  = "SELECT * FROM users WHERE id = :id AND status = :status";
+        $command = $connection->createCommand($sql);
+        $command->bindValue(':id' , $user_id);
+        $command->bindValue(':status' , $status);
+        $rows_email = $command->queryOne();
+        if ($rows_email) {
+            return $rows_email; 
+        } else {
+            return false;
+        }
+    }
+
+    public function getUserByEmail($user_email,$status)
+    {
+        $connection = Yii::$app->db;
+        $sql  = "SELECT * FROM users WHERE user_email = :email AND status = :status";
         $command = $connection->createCommand($sql);
         $command->bindValue(':email' , $user_email);
+        $command->bindValue(':status' , $status);
         $rows_email = $command->queryOne();
         if ($rows_email) {
             return $rows_email; 
@@ -122,12 +137,13 @@ class users extends ActiveRecord
         }
     }
     
-    public function getUserByUsername($user_name)
+    public function getUserByUsername($user_name,$status)
     {
         $connection = Yii::$app->db;
-        $sqlname  = "SELECT * FROM users WHERE user_name= :username";
+        $sqlname  = "SELECT * FROM users WHERE user_name= :username AND status = :status";
         $command = $connection->createCommand($sqlname);
         $command->bindValue(':username' , $user_name);
+        $command->bindValue(':status' , $status);
         $rows_username = $command->queryOne();
         if ($rows_username) {
             return $rows_username; 

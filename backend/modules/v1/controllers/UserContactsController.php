@@ -671,6 +671,40 @@ class UsersController extends ActiveController
         }
     }
 
+    public function actionInvitation($id)
+    {
+        $request = Yii::$app->request;
+        $user_email = $request->post('user_email');
+        $user = new users();
+        $status = "Active";
+        $model = $user->getUserByEmail($user_email,$status);
+        if ($model) {
+            $invitation = new userInvitations();
+            $token= Yii::$app->security->generateRandomString() . '_' . time();
+            $expiry=date("Y-m-d H:i:s",strtotime(date("Y-m-d H:i:s")." +1 day"));
+            $status = "Invited";
+            $invite = $invitation->invite($id,$user_email,$expiry,$token,$status);
+            if($invite){
+
+                Yii::$app->response->statusCode=200;
+                echo json_encode(array(
+                    'status'=>200,
+                    'error'=>array('message'=>"Invitation sent.")),JSON_PRETTY_PRINT
+                );
+            } else {
+                Yii::$app->response->statusCode=400;
+                echo json_encode(array(
+                    'status'=>400,
+                    'error'=>array('message'=>"Error occured.")),JSON_PRETTY_PRINT
+                );            
+            }
+        } else {
+            Yii::$app->response->statusCode=400;
+            echo json_encode(array(
+                'status'=>400,
+                'error'=>array('message'=>"User not found.")),JSON_PRETTY_PRINT
+            );            
+        }
 
     }
     public function actionView($id)
@@ -694,6 +728,29 @@ class UsersController extends ActiveController
         }
 
     }
+    public function actionShowInvitations($id) {
+        $invitation = new userInvitations();
+        //echo json_encode($id);
+        $model = $invitation->getInvitations($id);
+        if($model) {
+            Yii::$app->response->statusCode=200;
+            echo json_encode(array(
+                'status'=>200,
+                'data'=>$model),JSON_PRETTY_PRINT
+            );
+        } else {
+            Yii::$app->response->statusCode=400;
+            echo json_encode(array(
+                'status'=>400,
+                'error'=>array('message'=>"No invitation found.")),JSON_PRETTY_PRINT
+            );  
+        
+        }
+
+        //echo json_encode("Hello");
+    }      
+    
+    
 
     public function actionUpdate($id)
     {
