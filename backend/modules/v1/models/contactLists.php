@@ -64,6 +64,20 @@ class contactLists extends ActiveRecord
         return $this->hasOne(Users::className(), ['id' => 'user_id']);
     }
 
+    public function getContactListByUserId($id)
+    {
+        $connection = Yii::$app->db;
+        $sql  = "SELECT * FROM contact_lists WHERE user_id = :id ";
+        $command = $connection->createCommand($sql);
+        $command->bindValue(':id' , $id);
+        $rows_contact_list = $command->queryOne();
+        if ($rows_contact_list) {
+            return $rows_contact_list; 
+        } else {
+            return false;
+        } 
+    }
+
     public function createContactList($id,$status)
     {
         $model_list = new contactLists();
@@ -71,7 +85,6 @@ class contactLists extends ActiveRecord
         $model_list->status = $status;
         $model_list->created_on=date('Y-m-d H:i:s');
         $model_list->modified_on=date('Y-m-d H:i:s');
-        
                 
         if ($model_list->save()) {
             return $model_list;

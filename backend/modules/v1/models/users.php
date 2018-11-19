@@ -275,13 +275,13 @@ class users extends ActiveRecord
             ->all();
             
         //get all contacts already invited by the user
-        $sql  = "SELECT email FROM user_invitations WHERE user_id= :id AND status = 'Invited'";
+        $sql  = "SELECT invited_id FROM user_invitations WHERE invited_by_id= :id AND status = 'Invited'";
         $command = $connection->createCommand($sql);
         $command->bindValue(':id' , $id);
         $rows_invites = $command->queryAll();
         if($rows_invites) {
             foreach ($rows_invites as $row) {
-                $invitedemails[$m] = $row['email'];
+                $invitedids[$m] = $row['invited_id'];
                 $m++;
             }
         }
@@ -301,7 +301,8 @@ class users extends ActiveRecord
                 $arrayemail[$i] = $row['user_email'];
                 if(!empty($listcontactids) && in_array($row['id'], $listcontactids)) {
                     $contacts[$i] =$arraytemp;
-                } elseif (!empty($invitedemails) && in_array($row['user_email'], $invitedemails) ) {
+                    $i++;
+                } elseif (!empty($invitedids) && in_array($row['id'], $invitedids) ) {
                     $others['invited'][$k] =$arraytemp;
                     $k++;
                 } else {
@@ -310,7 +311,7 @@ class users extends ActiveRecord
                 }
 
                 $temparray[$i] = $arraytemp;
-                $i++;
+            
                 $response['contacts'] = $contacts;
                 $response['others'] = $others;       
             }    

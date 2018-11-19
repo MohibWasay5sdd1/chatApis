@@ -35,11 +35,8 @@ class UserInvitationsController extends ActiveController
         if (parent::beforeAction($action)) {
             date_default_timezone_set("Asia/Karachi");
             if ($this->action->id == 'index'|| $this->action->id == 'update'|| 
-                $this->action->id == 'invitation' || $this->action->id == 'delete' || $this->action->id =='search-user'
-                || $this->action->id == 'view'|| 
-                $this->action->id == 'change-password' ||  $this->action->id == 'show-invitations' ||
-                $this->action->id == 'random-entry' || $this->action->id == 'create' ||
-                $this->action->id == 'random-entry-of-user' || $this->action->id == 'create-date') {
+                $this->action->id == 'invitation' || $this->action->id == 'delete' 
+                || $this->action->id == 'view'||  $this->action->id == 'create' ) {
                 
                 Url::remember();
                 $headers = Yii::$app->request->headers;
@@ -78,8 +75,7 @@ class UserInvitationsController extends ActiveController
                 }
             }
         
-            if ($flag==1 ||  $this->action->id == 'options' || $this->action->id == 'create' || $this->action->id =='request-registration-token' || $this->action->id == 'verify-registration' || $this->action->id == 'login' || $this->action->id == 'request-password-reset' || $this->action->id == 'verify-token' || $this->action->id == 'reset-password' 
-                ) {
+            if ($flag==1 ||  $this->action->id == 'options' ) {
                
                 return true;
            
@@ -89,7 +85,7 @@ class UserInvitationsController extends ActiveController
                 echo json_encode(array(
                                   'status'=>401,
                                   'error'=>array(
-                                    'message'=>"You are not authorized to perform this action."
+                                    'message'=>"You are not authorized to perform this action.".$this->action->id
                                     )
                                   )
                                 );
@@ -165,7 +161,7 @@ class UserInvitationsController extends ActiveController
     public function actionCreate($id)
     {
         $request = Yii::$app->request;
-        $user_id = $request->post('user_id');
+        $user_id = $request->post('invited_user_id');
 
         $user = new users();
         $status = "Active";
@@ -173,16 +169,20 @@ class UserInvitationsController extends ActiveController
         if ($model) {
                         
             $invitation = new userInvitations();
-            $token= Yii::$app->security->generateRandomString() . '_' . time();
-            $expiry=date("Y-m-d H:i:s",strtotime(date("Y-m-d H:i:s")." +1 day"));
+            //$token= Yii::$app->security->generateRandomString() . '_' . time();
+            //$expiry=date("Y-m-d H:i:s",strtotime(date("Y-m-d H:i:s")." +1 day"));
             $status = "Invited";
-            $invite = $invitation->invite($id,$user_id,$expiry,$token,$status);
+            $invite = $invitation->invite($id,$user_id,$status);
             if($invite){
+
+                $notification = \Yii::$app->MyComponent->send_notification($registration_id,$message);
 
                 Yii::$app->response->statusCode=200;
                 echo json_encode(array(
                     'status'=>200,
-                    'error'=>array('message'=>"Invitation sent.")),JSON_PRETTY_PRINT
+                    'error'=>array('message'=>"Invitation sent.",
+                        'answer'=>$notification,
+                        )),JSON_PRETTY_PRINT
                 );
             } else {
                 Yii::$app->response->statusCode=400;
@@ -200,27 +200,9 @@ class UserInvitationsController extends ActiveController
         }
 
     }
-    // public function action($id)
-    // {
-    //     $user = new users();
-    //     $list = $user->getContacts($id);
-    //     if ($list) {
-    //         Yii::$app->response->statusCode=200;
-    //         echo json_encode(array(
-    //             'status'=>200,
-    //             'data'=>$list),JSON_PRETTY_PRINT
-    //         );
-    //     } else {
-    //         Yii::$app->response->statusCode=400;
-    //         echo json_encode(array(
-    //             'status'=>400,
-    //             'error'=>array('message'=>"No contact found.")),JSON_PRETTY_PRINT
-    //         );  
-        
-    //     }
 
-    // }
     public function actionIndex($id) {
+
         $invitation = new userInvitations();
         $model = $invitation->getInvitations($id);
         if($model) {
@@ -241,14 +223,30 @@ class UserInvitationsController extends ActiveController
     
     public function actionUpdate($id)
     {
+        $invitation = new userInvitations();
+        $request = Yii::$app->request;
+        $status = $request->post('status');
+
+        $model = $invitation->updateInvitation($id, $status);
+        if($model) {
+            Yii::$app->response->statusCode=200;
+            echo json_encode(array(
+                'status'=>200,
+                'data'=>$model),JSON_PRETTY_PRINT
+            );
+        } else {
+            Yii::$app->response->statusCode=400;
+            echo json_encode(array(
+                'status'=>400,
+                'error'=>array('message'=>"No invitation found.")),JSON_PRETTY_PRINT
+            );  
         
+        }
     }
 
     public function actionDelete($id)
     {
-        $this->findModel($id)->delete();
 
-        return $this->redirect(['index']);
     }
 
 

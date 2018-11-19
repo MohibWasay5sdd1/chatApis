@@ -47,6 +47,9 @@ return [
                  'charset' => 'UTF-8',
    
         ],
+            'MyComponent' => [
+            'class' => 'backend\modules\v1\components\MyComponent',
+        ],
      
         'urlManager' => [
             'enablePrettyUrl' => true,
@@ -58,7 +61,7 @@ return [
                     'controller' => 'v1/users',
                       'extraPatterns'=> [
                   
-                            'PUT,POST,OPTIONS <id:\d+>' => 'update',
+                           // 'PUT,POST,OPTIONS <id:\d+>' => 'update',
                             'POST,OPTIONS' =>'create',
                             'POST,OPTIONS registration-token' =>'request-registration-token',
                             'GET,OPTIONS {id}/contacts' =>'view',
@@ -84,7 +87,7 @@ return [
                     'controller' => 'v1/user-invitations',
                       'extraPatterns'=> [
                   
-                            'PUT,POST,OPTIONS <id:\d+>' => 'update',
+                            'PUT,POST,OPTIONS {id}' => 'update',
                             'POST,OPTIONS {id}/invitation' =>'create',
                             'GET,OPTIONS {id}/contacts' =>'view',
                             //'POST,OPTIONS {id}/invitation' => 'invitation',

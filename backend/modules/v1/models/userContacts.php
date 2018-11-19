@@ -70,17 +70,18 @@ class userContacts extends ActiveRecord
         return $this->hasOne(contactLists::className(), ['id' => 'contact_list_id']);
     }
 
-    public function addContact($id,$status)
+    public function addContact($list_id,$contact_id)
     {
-        $model_list = new contactLists();
-        $model_list->user_id = $id;
-        $model_list->status = $status;
-        $model_list->created_on=date('Y-m-d H:i:s');
-        $model_list->modified_on=date('Y-m-d H:i:s');
+        $model = new userContacts();
+        $model->contact_list_id = $list_id;
+        $model->contact_id = $contact_id;
+        $model->status = "Active";
+        $model->created_on=date('Y-m-d H:i:s');
+        $model->modified_on=date('Y-m-d H:i:s');
         
                 
-        if ($model_list->save()) {
-            return $model_list;
+        if ($model->save()) {
+            return $model;
         } else {
         return false;
         }
