@@ -99,6 +99,21 @@ return [
                     ]
                     
                 ],
+                [
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/user-notifications',
+                      'extraPatterns'=> [      
+                            'PUT,POST,OPTIONS {id}' => 'update',
+                            'POST,OPTIONS {id}/invitation' =>'create',
+                            'GET,OPTIONS {id}/contacts' =>'view',
+                            'GET,OPTIONS {id}/notification' => 'index',
+                ],
+                    'tokens' => [
+                            
+                            '{id}' => '<id:\\d+>' 
+                    ]
+                    
+                ],
 
                 [
                     'class' => 'yii\rest\UrlRule',

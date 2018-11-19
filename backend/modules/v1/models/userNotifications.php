@@ -89,4 +89,18 @@ class userNotifications extends ActiveRecord
         return false;
         }
     }
+    public function getNotifications($id)
+    {
+        $connection = Yii::$app->db;
+       
+        $sql  = "SELECT * FROM user_notifications WHERE user_id = :id ";
+        $command = $connection->createCommand($sql);
+        $command->bindValue(':id' , $id);
+        $rows_notifications = $command->queryAll();
+        if($rows_notifications) {
+            return $rows_notifications;
+        } else {
+            return false;
+        }
+    }
 }

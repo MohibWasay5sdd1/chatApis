@@ -31,7 +31,7 @@ class MyComponent extends Component{
 		);
 
 		$headers = array(
-			'Authorization: key=' . \Yii::$app->params['server_key']; ,
+			'Authorization: key=' . \Yii::$app->params['server_key'],
 			'Content-Type: application/json'
 		);
 		 

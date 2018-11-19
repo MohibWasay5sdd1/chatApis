@@ -175,13 +175,12 @@ class UserInvitationsController extends ActiveController
             $invite = $invitation->invite($id,$user_id,$status);
             if($invite){
 
-                $notification = \Yii::$app->MyComponent->send_notification($registration_id,$message);
+                //$notification = \Yii::$app->MyComponent->send_notification($registration_id,$message);
 
                 Yii::$app->response->statusCode=200;
                 echo json_encode(array(
                     'status'=>200,
-                    'error'=>array('message'=>"Invitation sent.",
-                        'answer'=>$notification,
+                    'error'=>array('message'=>"Invitation sent."
                         )),JSON_PRETTY_PRINT
                 );
             } else {
