@@ -28,7 +28,7 @@ use backend\modules\v1\models\contactLists;
 
 class UserInvitationsController extends ActiveController
 {
-        public function beforeAction($action)
+    public function beforeAction($action)
     {
         $this->enableCsrfValidation = false;
         $flag=0;
@@ -167,21 +167,19 @@ class UserInvitationsController extends ActiveController
         $status = "Active";
         $model = $user->getUserById($user_id,$status);
         if ($model) {
-                        
+            $device_token = $model['device_token'];
             $invitation = new userInvitations();
-            //$token= Yii::$app->security->generateRandomString() . '_' . time();
-            //$expiry=date("Y-m-d H:i:s",strtotime(date("Y-m-d H:i:s")." +1 day"));
+            $message = $model_invitee['full_name']." has sent you an invitation.";
             $status = "Invited";
             $invite = $invitation->invite($id,$user_id,$status);
+            //$invite = true;
             if($invite){
-
-                //$notification = \Yii::$app->MyComponent->send_notification($registration_id,$message);
-
+                $notification = \Yii::$app->MyComponent->send_notification($device_token,$message);
                 Yii::$app->response->statusCode=200;
                 echo json_encode(array(
                     'status'=>200,
-                    'error'=>array('message'=>"Invitation sent."
-                        )),JSON_PRETTY_PRINT
+                    'data'=>array('message'=>"Invitation sent.",
+                    'notification'=>$notification)),JSON_PRETTY_PRINT
                 );
             } else {
                 Yii::$app->response->statusCode=400;
@@ -225,9 +223,15 @@ class UserInvitationsController extends ActiveController
         $invitation = new userInvitations();
         $request = Yii::$app->request;
         $status = $request->post('status');
-
+        $user = new users();
+        $status_user = "Active";
         $model = $invitation->updateInvitation($id, $status);
         if($model) {
+            $model_invited = $user->getUserById($user_id,$status_user);
+            $model_invitee = $user->getUserById($id,$status_user);
+            $device_token = $model_invitee['device_token'];
+            $message = $model_invited['full_name']." has accepted your invitation.";
+            $notification = \Yii::$app->MyComponent->send_notification($device_token,$message);
             Yii::$app->response->statusCode=200;
             echo json_encode(array(
                 'status'=>200,

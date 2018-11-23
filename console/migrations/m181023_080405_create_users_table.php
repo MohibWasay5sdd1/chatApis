@@ -25,6 +25,7 @@ class m181023_080405_create_users_table extends Migration
             'user_password' => $this->string(100)->notNull(),
             'phone_number' => $this->text(),
             'dob' => $this->date(),
+            'device_token' => $this->string(250)->unique(),
             'status' => $this->string(25)->notNull(),
             'reset_token' => $this->string(250),
             'reset_expiry' => $this->dateTime(),

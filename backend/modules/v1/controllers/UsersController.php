@@ -175,6 +175,7 @@ class UsersController extends ActiveController
         $user_full_name    =   $request->post('full_name');
         $user_pass           =   $request->post('user_password');
         $user_email          =   $request->post('user_email');
+        $device_token    =    $request->post('device_token');
         $user_type = 'user';
 
         if (empty($user_pass) || empty($user_email) || empty($user_name) || empty($user_full_name)) {
@@ -205,7 +206,7 @@ class UsersController extends ActiveController
                             ),JSON_PRETTY_PRINT);
 
                 } else {
-                    $response = $user->createUser($user_name,$user_first_name,$user_last_name,$user_full_name,$user_email,$user_pass,$role_id);
+                    $response = $user->createUser($user_name,$user_first_name,$user_last_name,$user_full_name,$user_email,$user_pass,$role_id,$device_token);
 
                     if ($response) {
                         Yii::$app->response->statusCode=200;
@@ -695,24 +696,26 @@ class UsersController extends ActiveController
 
     public function actionUpdate($id)
     {
-        $model = $this->findModel($id);
-
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
+        $request = Yii::$app->request;
+        $token = $request->post('device_token');
+        $user = new users();
+        $data = $user->updateDeviceToken($id,$token);
+        if($data){
+            Yii::$app->response->statusCode=200;
+            echo json_encode(array(
+                'status'=>200,
+                'data'=>$data),JSON_PRETTY_PRINT
+            );
+        } else {
+            Yii::$app->response->statusCode=400;
+            echo json_encode(array(
+                'status'=>400,
+                'error'=>array('message'=>"User not found.")),JSON_PRETTY_PRINT
+            );  
         }
-
-        return $this->render('update', [
-            'model' => $model,
-        ]);
+          
     }
 
-    /**
-     * Deletes an existing users model.
-     * If deletion is successful, the browser will be redirected to the 'index' page.
-     * @param integer $id
-     * @return mixed
-     * @throws NotFoundHttpException if the model cannot be found
-     */
     public function actionDelete($id)
     {
         $this->findModel($id)->delete();

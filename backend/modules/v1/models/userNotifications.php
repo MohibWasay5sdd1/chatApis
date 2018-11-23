@@ -73,6 +73,21 @@ class userNotifications extends ActiveRecord
     {
         return $this->hasOne(Users::className(), ['id' => 'user_id']);
     }
+
+    public function getNotificationById($id)
+    {
+        $connection = Yii::$app->db;
+        $sql  = "SELECT * FROM user_notifications WHERE id = :id ";
+        $command = $connection->createCommand($sql);
+        $command->bindValue(':id' , $id);
+        $rows = $command->queryOne();
+        if ($rows) {
+            return $rows; 
+        } else {
+            return false;
+        }
+    }
+    
     public function createNotification($invited_by_id,$message)
     {
 
@@ -89,18 +104,66 @@ class userNotifications extends ActiveRecord
         return false;
         }
     }
-    public function getNotifications($id)
+    public function getUnreadCount($id)
     {
+        $un_read_count = 0;
         $connection = Yii::$app->db;
-       
         $sql  = "SELECT * FROM user_notifications WHERE user_id = :id ";
         $command = $connection->createCommand($sql);
         $command->bindValue(':id' , $id);
         $rows_notifications = $command->queryAll();
         if($rows_notifications) {
-            return $rows_notifications;
+            foreach($rows_notifications as $row) {
+                if($row['is_read'] == 'No') {
+                    $un_read_count++;
+                }
+            }
+            return $un_read_count;
+        } else {
+            return false;
+        }
+        
+    }
+
+    public function getNotifications($id)
+    {
+        $un_read_count = 0;
+        $connection = Yii::$app->db;
+        $sql  = "SELECT * FROM user_notifications WHERE user_id = :id ";
+        $command = $connection->createCommand($sql);
+        $command->bindValue(':id' , $id);
+        $rows_notifications = $command->queryAll();
+        if($rows_notifications) {
+           
+            $un_read_count  = $this->getUnreadCount($id);
+            $notifications['un_read_count'] = $un_read_count;
+            $notifications['notifications'] = $rows_notifications;
+            return $notifications;
         } else {
             return false;
         }
     }
+
+    public function updateNotifications($id)
+    {
+        $connection = Yii::$app->db;
+        $status = 'Yes';
+        $sql  = "UPDATE user_notifications SET is_read = :status, modified_on = NOW() WHERE id = :id";
+        $command = $connection->createCommand($sql);
+        $command->bindValue(':status' , $status);
+        $command->bindValue(':id' , $id);
+        $rows = $command->execute();
+        if ($rows) {
+            $model = $this->getNotificationById($id);
+            if($model) {
+                return $model;
+            } else {
+                return false;
+            } 
+        }else {
+                return false;
+        }
+    
+    }
+
 }

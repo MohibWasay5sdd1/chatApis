@@ -79,7 +79,7 @@ class UserNotificationsController extends ActiveController
                 }
             }
         
-            if ($flag==1 ||  $this->action->id == 'options' || $this->action->id == 'create' || $this->action->id =='request-registration-token' || $this->action->id == 'verify-registration' || $this->action->id == 'login' || $this->action->id == 'request-password-reset' || $this->action->id == 'verify-token' || $this->action->id == 'reset-password' 
+            if ($flag==1 ||  $this->action->id == 'options' || $this->action->id == 'create'
                 ) {
                
                 return true;
@@ -90,7 +90,7 @@ class UserNotificationsController extends ActiveController
                 echo json_encode(array(
                                   'status'=>401,
                                   'error'=>array(
-                                    'message'=>"You are not authorized to perform this action."
+                                    'message'=>"You are not authorized to perform this action.".$this->action->id
                                     )
                                   )
                                 );
@@ -193,7 +193,22 @@ class UserNotificationsController extends ActiveController
 
     public function actionUpdate($id)
     {
-
+        $user_notification = new userNotifications();
+        $update = $user_notification->updateNotifications($id);
+        if ($update) {
+            Yii::$app->response->statusCode=200;
+            echo json_encode(array(
+                'status'=>200,
+                'data'=>array('message' => 'Success')),JSON_PRETTY_PRINT
+            );
+        } else {
+            Yii::$app->response->statusCode=400;
+            echo json_encode(array(
+                'status'=>400,
+                'error'=>array('message'=>"No notifications found.")),JSON_PRETTY_PRINT
+            );  
+        
+        }
     }
 
     /**

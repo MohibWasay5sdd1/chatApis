@@ -47,7 +47,7 @@ return [
                  'charset' => 'UTF-8',
    
         ],
-            'MyComponent' => [
+        'MyComponent' => [
             'class' => 'backend\modules\v1\components\MyComponent',
         ],
      
@@ -61,7 +61,7 @@ return [
                     'controller' => 'v1/users',
                       'extraPatterns'=> [
                   
-                           // 'PUT,POST,OPTIONS <id:\d+>' => 'update',
+                            'PUT,POST,OPTIONS <id:\d+>' => 'update',
                             'POST,OPTIONS' =>'create',
                             'POST,OPTIONS registration-token' =>'request-registration-token',
                             'GET,OPTIONS {id}/contacts' =>'view',
@@ -107,64 +107,12 @@ return [
                             'POST,OPTIONS {id}/invitation' =>'create',
                             'GET,OPTIONS {id}/contacts' =>'view',
                             'GET,OPTIONS {id}/notification' => 'index',
+                            'GET,OPTIONS sendnotification' =>'send-notification'
                 ],
                     'tokens' => [
                             
                             '{id}' => '<id:\\d+>' 
                     ]
-                    
-                ],
-
-                [
-                    'class' => 'yii\rest\UrlRule',
-                    'controller' => 'v1/users',
-                      'extraPatterns'=> [
-                  
-                             'POST,OPTIONS app/test-post' => 'test-post'
-                            ],
-                    
-                ],
-                [
-                    'class' => 'yii\rest\UrlRule',
-                    'controller' => 'v1/users',
-                  
-                    'extraPatterns'=> [
-                  
-                             'POST,OPTIONS app/change-password' => 'change-password'
-                            ],
-                    
-                ],
-                [
-                    'class' => 'yii\rest\UrlRule',
-                    'controller' => 'v1/users',
-             
-                    'extraPatterns'=> [
-                  
-                            
-                            ],
-                    
-                ],
-              
-                [
-                    'class' => 'yii\rest\UrlRule',
-                    'controller' => 'v1/users',
-                  
-                    'extraPatterns'=> [
-                  
-                             'POST,OPTIONS app/reset-password-request' => 'request-password-reset',
-                             
-                             'POST,OPTIONS app/code-change-password' =>'code-change-password'
-                            ],
-                    
-                ],
-                [
-                    'class' => 'yii\rest\UrlRule',
-                    'controller' => 'v1/users',
-                  
-                    'extraPatterns'=> [
-                  
-                             'POST,OPTIONS app/reset-password' => 'reset-password'
-                            ],
                     
                 ]
             ],        

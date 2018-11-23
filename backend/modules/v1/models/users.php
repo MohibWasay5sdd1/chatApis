@@ -57,7 +57,7 @@ class users extends ActiveRecord
             [['user_name', 'status'], 'string', 'max' => 25],
             [['first_name', 'last_name'], 'string', 'max' => 50],
             [['full_name', 'user_email', 'user_password'], 'string', 'max' => 100],
-            [['reset_token'], 'string', 'max' => 250],
+            [['reset_token','device_token'], 'string', 'max' => 250],
             [['profile_pic_url'], 'string', 'max' => 300],
             [['user_name'], 'unique'],
             [['user_email'], 'unique'],
@@ -80,6 +80,7 @@ class users extends ActiveRecord
             'password' => 'Password',
             'phone_number' => 'Phone Number',
             'dob' => 'Dob',
+            'device_token' => "Device Token",
             'status' => 'Status',
             'reset_token' => 'Reset Token',
             'reset_expiry' => 'Reset Expiry',
@@ -152,14 +153,15 @@ class users extends ActiveRecord
         }
     }
 
-    public function createUser($user_name,$user_first_name,$user_last_name,$user_full_name,$user_email,$user_pass,$role_id)
+    public function createUser($user_name,$user_first_name,$user_last_name,$user_full_name,$user_email,$user_pass,$role_id,$device_token)
     {
         $model = new Users();
         $model->user_name        =   (empty($user_name)) ? "" : $user_name;
         $model->first_name   =   (empty($user_first_name)) ? "" : $user_first_name;
         $model->last_name    =   (empty($user_last_name)) ? "" : $user_last_name;
         $model->full_name    =   (empty($user_full_name)) ? "" : $user_full_name;
-        $model->user_email=  $user_email;     
+        $model->user_email=  $user_email;
+        $model->device_token = $device_token;     
         $model->user_password = password_hash($user_pass, PASSWORD_DEFAULT);
         $model->reset_token = null;
         $model->reset_expiry = null;
@@ -173,6 +175,27 @@ class users extends ActiveRecord
             return true;
         } else {
             return false;
+        }
+    }
+
+    public function updateDeviceToken($user_id,$token)
+    {
+        $connection = Yii::$app->db;
+
+        $sql  = "UPDATE users SET device_token = :token, modified_on = NOW() WHERE id = :id";
+        $command = $connection->createCommand($sql);
+        $command->bindValue(':token' , $token);
+        $command->bindValue(':id' , $user_id);
+        $rows_email = $command->execute();
+        if ($rows_email) {
+            $model = $this->getUserById($user_id);
+            if($model) {
+                return $model;
+            } else {
+                return false;
+            } 
+        }else {
+                return false;
         }
     }
 
@@ -199,6 +222,7 @@ class users extends ActiveRecord
             $command->bindValue(':email' , $user_email);
             $command->bindValue(':status' , $status);
             $rows_email = $command->execute();
+            $status = "Active";
         } else {
             $sql  = "UPDATE users SET reset_token = :resettoken, reset_expiry = :resetexpiry, modified_on = NOW() WHERE user_email = :email";
             $command = $connection->createCommand($sql);
@@ -206,10 +230,11 @@ class users extends ActiveRecord
             $command->bindValue(':resetexpiry' , $reset_expiry);
             $command->bindValue(':email' , $user_email);
             $rows_email = $command->execute();
+            $status = "Unverified";
 
         }
         if ($rows_email) {
-            $model = $this->getUserByEmail($user_email);
+            $model = $this->getUserByEmail($user_email, $status);
             if($model) {
                 return $model;
             } else {
@@ -239,6 +264,8 @@ class users extends ActiveRecord
         $query = Users::find();
         $contacts = array();
         $others = array();
+        $others['uninvited'] = array();
+        $others['invited'] = array();
         $response = null;
         $i = 0;
         $k = 0;
